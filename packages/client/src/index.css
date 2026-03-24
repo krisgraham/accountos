@@ -1,0 +1,71 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Dark mode (default) */
+  --color-surface: #1a1a2e;
+  --color-surface-hover: #232340;
+  --color-surface-raised: #2a2a4a;
+  --color-border: #333355;
+  --color-text-primary: #e8e8f0;
+  --color-text-secondary: #a0a0b8;
+  --color-text-muted: #6b6b80;
+  --color-accent: #4f8ff7;
+  --color-accent-hover: #3a7ae0;
+
+  /* Sentiment */
+  --color-sentiment-advocate: #22c55e;
+  --color-sentiment-supportive: #86efac;
+  --color-sentiment-neutral: #94a3b8;
+  --color-sentiment-resistant: #fb923c;
+  --color-sentiment-blocker: #ef4444;
+
+  /* RAG Status */
+  --color-rag-healthy: #22c55e;
+  --color-rag-monitor: #f59e0b;
+  --color-rag-at-risk: #ef4444;
+
+  /* Department colors */
+  --color-dept-1: #4f8ff7;
+  --color-dept-2: #8b5cf6;
+  --color-dept-3: #ec4899;
+  --color-dept-4: #f59e0b;
+  --color-dept-5: #22c55e;
+  --color-dept-6: #06b6d4;
+  --color-dept-7: #f97316;
+  --color-dept-8: #a855f7;
+  --color-dept-9: #14b8a6;
+  --color-dept-10: #e11d48;
+
+  /* Contract Status */
+  --color-contract-proposed: #94a3b8;
+  --color-contract-verbal: #f59e0b;
+  --color-contract-contracted: #22c55e;
+  --color-contract-invoicing: #4f8ff7;
+}
+
+/* Light mode overrides */
+:root:not(.dark) {
+  --color-surface: #f8f9fc;
+  --color-surface-hover: #f0f1f5;
+  --color-surface-raised: #ffffff;
+  --color-border: #e2e4ea;
+  --color-text-primary: #1a1a2e;
+  --color-text-secondary: #4a4a60;
+  --color-text-muted: #8888a0;
+  --color-accent: #3b7ce5;
+  --color-accent-hover: #2d6ad4;
+}
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}

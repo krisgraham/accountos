@@ -1,0 +1,319 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Organization {
+  id           String       @id @default(uuid())
+  name         String
+  industry     String?
+  website      String?
+  description  String?
+  healthScore  Float?
+  healthStatus String       @default("HEALTHY")
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  deletedAt    DateTime?
+
+  departments  Department[]
+  contacts     Contact[]
+  projects     Project[]
+}
+
+model Department {
+  id                 String       @id @default(uuid())
+  name               String
+  description        String?
+  colorCode          String?
+  missionFocus       String?
+  strategicPriorities String?
+  budgetCycleStart   DateTime?
+  budgetCycleEnd     DateTime?
+  keyInitiatives     String?
+  createdAt          DateTime     @default(now())
+  updatedAt          DateTime     @updatedAt
+  deletedAt          DateTime?
+
+  organizationId     String
+  organization       Organization @relation(fields: [organizationId], references: [id])
+
+  contacts           Contact[]
+  projects           Project[]
+}
+
+model Contact {
+  id                   String       @id @default(uuid())
+  name                 String
+  title                String?
+  email                String?
+  phone                String?
+  linkedinUrl          String?
+  linkedinProfile      String?
+  background           String?
+  photoUrl             String?
+  stakeholderRole      String?
+  sentiment            String?
+  influenceLevel       String?
+  relationshipScore    Float?
+  engagementStatus     String?
+  engagementStatusNote String?
+  isKeyStakeholder     Boolean      @default(false)
+  ourGoals             String?
+  createdAt            DateTime     @default(now())
+  updatedAt            DateTime     @updatedAt
+  deletedAt            DateTime?
+
+  organizationId       String
+  organization         Organization @relation(fields: [organizationId], references: [id])
+  departmentId         String?
+  department           Department?  @relation(fields: [departmentId], references: [id])
+  reportsToId          String?
+  reportsTo            Contact?     @relation("ReportsTo", fields: [reportsToId], references: [id])
+  directReports        Contact[]    @relation("ReportsTo")
+
+  desires              Desire[]
+  projectMembers       ProjectMember[]
+  communicationParticipants CommunicationParticipant[]
+  meetingAttendees     MeetingAttendee[]
+  personNotes          PersonNote[]
+  actionItems          ActionItem[]
+  teamAffinities       TeamAffinity[]
+  nextSteps            NextStep[]
+  relationshipIntels   RelationshipIntel[]
+  engagementStrategies EngagementStrategy[]
+}
+
+model Desire {
+  id          String    @id @default(uuid())
+  category    String
+  description String
+  date        DateTime  @default(now())
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  contactId   String
+  contact     Contact   @relation(fields: [contactId], references: [id])
+}
+
+model RelationshipIntel {
+  id          String    @id @default(uuid())
+  category    String
+  description String
+  date        DateTime  @default(now())
+  createdBy   String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+
+  contactId   String
+  contact     Contact   @relation(fields: [contactId], references: [id])
+}
+
+model EngagementStrategy {
+  id          String    @id @default(uuid())
+  title       String
+  narrative   String?
+  status      String    @default("ACTIVE")
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+
+  contactId   String
+  contact     Contact   @relation(fields: [contactId], references: [id])
+
+  nextSteps   NextStep[]
+}
+
+model Project {
+  id             String       @id @default(uuid())
+  name           String
+  description    String?
+  type           String
+  stage          String?
+  healthStatus   String       @default("HEALTHY")
+  contractStatus String?
+  estimatedValue Float?
+  coverageScore  Float?
+  winLikelihood  Int?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  deletedAt      DateTime?
+
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  departmentId   String?
+  department     Department?  @relation(fields: [departmentId], references: [id])
+
+  members        ProjectMember[]
+  communications CommunicationProject[]
+  meetingNotes   MeetingNote[]
+  actionItems    ActionItem[]
+  nextSteps      NextStep[]
+}
+
+model ProjectMember {
+  id              String   @id @default(uuid())
+  role            String
+  engagementRoles String?
+  createdAt       DateTime @default(now())
+
+  projectId String
+  project   Project  @relation(fields: [projectId], references: [id])
+  contactId String
+  contact   Contact  @relation(fields: [contactId], references: [id])
+
+  @@unique([projectId, contactId, role])
+}
+
+model Communication {
+  id        String    @id @default(uuid())
+  type      String
+  date      DateTime  @default(now())
+  summary   String?
+  detail    String?
+  sentiment String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  participants CommunicationParticipant[]
+  projects     CommunicationProject[]
+}
+
+model CommunicationParticipant {
+  id              String        @id @default(uuid())
+  communicationId String
+  communication   Communication @relation(fields: [communicationId], references: [id])
+  contactId       String
+  contact         Contact       @relation(fields: [contactId], references: [id])
+
+  @@unique([communicationId, contactId])
+}
+
+model CommunicationProject {
+  id              String        @id @default(uuid())
+  communicationId String
+  communication   Communication @relation(fields: [communicationId], references: [id])
+  projectId       String
+  project         Project       @relation(fields: [projectId], references: [id])
+
+  @@unique([communicationId, projectId])
+}
+
+model MeetingNote {
+  id          String    @id @default(uuid())
+  date        DateTime  @default(now())
+  meetingType String?
+  summary     String?
+  rawText     String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+
+  projectId   String?
+  project     Project?  @relation(fields: [projectId], references: [id])
+
+  attendees   MeetingAttendee[]
+  personNotes PersonNote[]
+  actionItems ActionItem[]
+}
+
+model MeetingAttendee {
+  id            String      @id @default(uuid())
+  meetingNoteId String
+  meetingNote   MeetingNote @relation(fields: [meetingNoteId], references: [id])
+  contactId     String
+  contact       Contact     @relation(fields: [contactId], references: [id])
+
+  @@unique([meetingNoteId, contactId])
+}
+
+model PersonNote {
+  id            String      @id @default(uuid())
+  wants         String?
+  reactions     String?
+  commitments   String?
+  notes         String?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  meetingNoteId String
+  meetingNote   MeetingNote @relation(fields: [meetingNoteId], references: [id])
+  contactId     String
+  contact       Contact     @relation(fields: [contactId], references: [id])
+
+  @@unique([meetingNoteId, contactId])
+}
+
+model ActionItem {
+  id          String    @id @default(uuid())
+  description String
+  dueDate     DateTime?
+  status      String    @default("OPEN")
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  assigneeId    String?
+  assignee      Contact?     @relation(fields: [assigneeId], references: [id])
+  meetingNoteId String?
+  meetingNote   MeetingNote? @relation(fields: [meetingNoteId], references: [id])
+  projectId     String?
+  project       Project?     @relation(fields: [projectId], references: [id])
+}
+
+model TeamMember {
+  id             String       @id @default(uuid())
+  name           String
+  role           String?
+  expertiseAreas String?
+  email          String?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  affinities     TeamAffinity[]
+}
+
+model TeamAffinity {
+  id            String     @id @default(uuid())
+  affinityLevel String
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+
+  contactId     String
+  contact       Contact    @relation(fields: [contactId], references: [id])
+  teamMemberId  String
+  teamMember    TeamMember @relation(fields: [teamMemberId], references: [id])
+
+  @@unique([contactId, teamMemberId])
+}
+
+model Link {
+  id         String   @id @default(uuid())
+  name       String
+  url        String
+  typeTag    String?
+  entityType String
+  entityId   String
+  createdAt  DateTime @default(now())
+}
+
+model NextStep {
+  id        String    @id @default(uuid())
+  type      String
+  date      DateTime?
+  notes     String?
+  status    String    @default("PLANNED")
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  contactId             String
+  contact               Contact              @relation(fields: [contactId], references: [id])
+  projectId             String?
+  project               Project?             @relation(fields: [projectId], references: [id])
+  engagementStrategyId  String?
+  engagementStrategy    EngagementStrategy?  @relation(fields: [engagementStrategyId], references: [id])
+}
